@@ -7,6 +7,9 @@ import pytesseract
 from PIL import Image
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 from pydub import AudioSegment
 from PIL import Image
 import pyttsx3
@@ -67,11 +70,13 @@ def tester():
         if hashtest == 0:
               text=text + TextLeft + TextRight
         try:
+            wait = WebDriverWait(driver, 10)
+            element = wait.until(EC.element_to_be_clickable((By.ID, 'kr-chevron-right')))
             driver.find_element("xpath", '//*[@id="kr-chevron-right"]').click()
         except NoSuchElementException:
              print("not working :/")
         count= count + 1
-        sleep(4)
+        #sleep(4)
     with open('readme.txt', 'w') as f:
         f.write(text)
     end = time.time()
