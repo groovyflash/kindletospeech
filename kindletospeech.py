@@ -1,6 +1,9 @@
 #Using selenium in the front so I can see!!!!
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import StaleElementReferenceException
+from selenium.common.exceptions import ElementClickInterceptedException
 import time
 from time import sleep
 import pytesseract
@@ -23,12 +26,24 @@ def createAdudiobook(text):
     converter.runAndWait()
     converter.stop()
 
+def scrubtext(text):
+    whitelist = [' ', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', ',', '.', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '?', '!']
+    book = ""
+    for t in text:
+        # if t == ("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", ",", ".", " ", "?", "!", ",", ";", "'", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"):
+        #     book = book + t
+        #     print(t)
+        if t in whitelist:
+            book = book + t
+    return book
+
 # This converts the screenshot into text!
 def convertToText(IMAGE_PATH):
 
     pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
     text = pytesseract.image_to_string(Image.open(IMAGE_PATH))
-    return text
+    text2 = scrubtext(text)
+    return text2
 
 def cropImage():
     im = Image.open(r"C:\Users\fisch\OneDrive\Desktop\Application\screenshot2.png")
@@ -56,7 +71,7 @@ def tester():
     text = ""
     hashtest = 0
     count = 0
-    while hashtest==0:
+    while hashtest<4:
         start = time.time()
         sleep(2)
         driver.save_screenshot(r'C:\Users\fisch\OneDrive\Desktop\Application\screenshot2.png')
@@ -66,15 +81,17 @@ def tester():
         TextRightTest = TextRight
         TextRight = convertToText(r"C:\Users\fisch\OneDrive\Desktop\Application\screenshotRIGHT.png")
         if TextRight == TextRightTest and TextLeftTest:
-             hashtest = 1
-        if hashtest == 0:
+             hashtest = hashtest + 1
+        else:
               text=text + TextLeft + TextRight
+              hashtest = 0
         try:
             wait = WebDriverWait(driver, 10)
             element = wait.until(EC.element_to_be_clickable((By.ID, 'kr-chevron-right')))
             driver.find_element("xpath", '//*[@id="kr-chevron-right"]').click()
-        except NoSuchElementException:
+        except (NoSuchElementException, StaleElementReferenceException, TimeoutException, ElementClickInterceptedException):
              print("not working :/")
+             hashtest = 7
         count= count + 1
         #sleep(4)
     with open('readme.txt', 'w') as f:
