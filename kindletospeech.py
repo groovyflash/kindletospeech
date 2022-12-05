@@ -86,7 +86,7 @@ def tester():
               text=text + TextLeft + TextRight
               hashtest = 0
         try:
-            wait = WebDriverWait(driver, 10)
+            wait = WebDriverWait(driver, 100)
             element = wait.until(EC.element_to_be_clickable((By.ID, 'kr-chevron-right')))
             driver.find_element("xpath", '//*[@id="kr-chevron-right"]').click()
         except (NoSuchElementException, StaleElementReferenceException, TimeoutException, ElementClickInterceptedException):
